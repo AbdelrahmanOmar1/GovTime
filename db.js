@@ -15,10 +15,5 @@ pool.connect()
   .catch((err) => console.error('💥 Error connecting to DB:', err));
 
 
-// check the connection
-// (async () => {
-//   const res = await pool.query('SELECT NOW()');
-//   console.log(res.rows);
-// });
 
 module.exports = pool;

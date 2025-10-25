@@ -1,4 +1,5 @@
 const pool =  require('../db');
+const userSchema = require('../validators/userValidation');
 
 
 exports.getAllUsers = async (req, res) => {
@@ -22,10 +23,19 @@ exports.getAllUsers = async (req, res) => {
 
 exports.createUser = async(req ,res) => {
     try{
-
-        const {full_name , national_id , phone ,  email , Place_birth , address , date_of_birth}  = req.body;
-        const newUser = await pool.query('Insert INTO Users (full_name , national_id , phone ,  email , Place_birth , address , date_of_birth) VALUES ($1, $2, $3, $4, $5, $6, $7) RETURNING *' ,
-        [full_name , national_id , phone ,  email , Place_birth , address , date_of_birth]);
+        // validate user input
+        const {error , value}  = userSchema.validate(req.body , {abortEarly : false});
+        if(error){
+            return res.status(400).json({  
+                status: 'fail',
+                message: error.details.map(detail => detail.message)
+            });
+        }
+        // insert new user into database
+        
+        const {full_name , national_id , phone ,  email , place_birth , address , date_of_birth , national_id_expiry_date , password }  = value;
+        const newUser = await pool.query('Insert INTO Users (full_name , national_id , phone ,  email , place_birth , address , date_of_birth , national_id_expiry_date , password) VALUES ($1, $2, $3, $4, $5, $6, $7 , $8 , $9) RETURNING *' ,
+        [full_name , national_id , phone ,  email , place_birth , address , date_of_birth , national_id_expiry_date , password]);
         res.status(201).json({
             status: 'success',
             data: { user: newUser.rows[0]}
