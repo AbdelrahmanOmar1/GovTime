@@ -1,6 +1,6 @@
 const express = require('express');
 const app = express();
-const  pool = require('./db');
+const morgan  = require('morgan');
 const UserRouter = require('./routes/userRouter');
 require('dotenv').config();
 
@@ -8,7 +8,8 @@ require('dotenv').config();
 
 // midellewares
 app.use(express.json());
-
+// app.use(morgan('combined'));
+app.use(morgan('dev'));
 // routes
 app.use('/api/v1/users', UserRouter);
 

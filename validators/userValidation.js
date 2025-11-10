@@ -49,8 +49,17 @@ const userSchema = joi.object({
         'string.min': 'Place of birth must be at least 3 characters long',
         'string.max': 'Place of birth must be at most 50 characters long',
         'string.required': 'Place of birth is required'
+    }),
+    role : joi.string().valid('user' , 'admin' , 'officer').default('user').messages({
+        'any.only' : 'Role must be either user , admin , or officer',
     })
 });
+
+
+
+// validate date in national id
+
+
 
 
 module.exports = userSchema;
