@@ -5,7 +5,7 @@ const authController = require ('../controllers/authController');
 
 
 // signin route
-router.post('/signin', authController.singin);
+router.post('/signin', authController.signin);
 router.post('/login' , authController.login);    
 
 // user routes and protections

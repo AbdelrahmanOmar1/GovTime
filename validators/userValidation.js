@@ -27,11 +27,6 @@ const userSchema = joi.object({
         'date.base' : 'Birth date must be a valid date',
         'string.required': 'Birth date is required'
     }),
-    national_id_expiry_date : joi.date().required().min(7).messages({
-        'date.base' : 'National ID expiry date must be a valid date',
-        'date.min' : 'National ID expiry date must be /"yyyy-mm" format', 
-        'string.required': 'National ID expiry date is required'
-    }),
     email : joi.string().email().required().messages({
         'string.email' : 'Email must be a valid email',
         'string.required': 'Email is required'

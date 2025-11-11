@@ -13,7 +13,7 @@ require('dotenv').config();
 
 //connect to the data base online
 const pool = new Pool({
-  connectionString: process.env.DATABASE_URL.replace('*' , "npg_QFk1IZrCt2Tm"),
+  connectionString: process.env.DATABASE_URL.replace('****************' , process.env.DATABASE_URL_PASS),
   ssl: { rejectUnauthorized: false }
 });
 

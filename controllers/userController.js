@@ -1,9 +1,9 @@
 const bcrypt = require('bcrypt');
 const nodeCache =  require('node-cache');
 const myCache = new nodeCache({ stdTTL: 3600, checkperiod: 600 });
-const pool =  require('../db');
+const pool =  require('../config/db');
 const userSchema = require('../validators/userValidation');
-const scripts = require("../scripts");
+const scripts = require("../utils/scripts");
 
 
 
@@ -53,17 +53,10 @@ exports.createUser = async(req ,res) => {
         const salt = await bcrypt.genSalt(12);
         value.password = await bcrypt.hash(value.password , salt);
         // insert new user into database
-        const {full_name , national_id , phone ,  email , place_birth , address , date_of_birth , national_id_expiry_date , password }  = value;
-          const isValid = scripts.validateNationalIdDate(national_id , date_of_birth);
-          if(!isValid){
-            return res.status(400).json({
-                status : 'error!' , 
-                message : "National Id dosen't match the date provided !"
-            })
-            
-          }
-        const newUser = await pool.query('Insert INTO Users (full_name , national_id , phone ,  email , place_birth , address , date_of_birth , national_id_expiry_date , password) VALUES ($1, $2, $3, $4, $5, $6, $7 , $8 , $9 ) RETURNING *' ,
-        [full_name , national_id , phone ,  email , place_birth , address , date_of_birth , national_id_expiry_date , password  ]);
+        const {full_name , national_id , phone ,  email , place_birth , address , date_of_birth  , password }  = value;
+
+        const newUser = await pool.query('Insert INTO Users (full_name , national_id , phone ,  email , place_birth , address , date_of_birth  , password) VALUES ($1, $2, $3, $4, $5, $6, $7 , $8 ) RETURNING *' ,
+        [full_name , national_id , phone ,  email , place_birth , address , date_of_birth  , password  ]);
         res.status(201).json({
             status: 'success',
             data: { user: newUser.rows[0]}
