@@ -5,7 +5,7 @@ const bcrypt = require('bcrypt');
 const pool = require('../config/db');
 const userSchema = require('../validators/userValidation');
 const AppError = require('../utils/AppError');
-
+const helpers = require("../utils/helpers")
 
 // ===============================
 // Helper Functions
@@ -54,7 +54,13 @@ exports.signin = async (req, res, next) => {
     value.password = await hashPassword(value.password);
 
     const { full_name, national_id, phone, email, place_birth, address, date_of_birth, password, role } = value;
-
+    // check National_id with date
+    if(!helpers.checkNationalIdWithDate(value.national_id , value.date_of_birth)){
+      return res.status(400).json({
+        status : 'fail',
+        message : 'please provide a valid national ID and validate with date of birth'
+      })
+    }
     const { rows } = await pool.query(
       'INSERT INTO users(full_name, national_id, phone, email, place_birth, address, date_of_birth, password, role) VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9) RETURNING *',
       [full_name, national_id, phone, email, place_birth, address, date_of_birth, password, role || 'user']
