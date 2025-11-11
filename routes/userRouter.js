@@ -4,16 +4,13 @@ const userController =  require ('../controllers/userController');
 const authController = require ('../controllers/authController');   
 
 
-// signin route
-router.post('/signin', authController.signin);
-router.post('/login' , authController.login);    
 
 // user routes and protections
-router.get('/' ,userController.getAllUsers);
-router.post('/', userController.createUser);
-router.patch('/:id', userController.updateUser);
-router.get('/:id',userController.getUserById);
-router.delete('/:id' ,userController.deleteUser);
+router.get('/' ,authController.protect , authController.restrictTo('admin'),userController.getAllUsers);
+router.post('/', authController.protect ,authController.restrictTo('admin'),userController.createUser);
+router.get('/:id', authController.protect, authController.restrictTo('admin' , 'user' , 'officer'),userController.getUserById);
+router.patch('/:id', authController.protect,authController.restrictTo('admin' , 'user' , 'officer') , userController.updateUser);
+router.delete('/:id' , authController.protect, authController.restrictTo('admin'),userController.deleteUser);
 
 
 

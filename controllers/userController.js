@@ -1,147 +1,136 @@
 const bcrypt = require('bcrypt');
-const nodeCache =  require('node-cache');
-const myCache = new nodeCache({ stdTTL: 3600, checkperiod: 600 });
-const pool =  require('../config/db');
+const NodeCache = require('node-cache');
+const pool = require('../config/db');
 const userSchema = require('../validators/userValidation');
-const scripts = require("../utils/scripts");
+const AppError = require('../utils/AppError');
+const myCache = new NodeCache({ stdTTL: 3600, checkperiod: 600 });
 
-
-
-exports.getAllUsers = async (req, res) => {
-    try {
-        const cachedUsers = myCache.get('all_users');
-        if (cachedUsers) {
-        return res.status(200).json({
-            status: 'success',
-            message: 'Users fetched from cache',
-            results : cachedUsers.length,
-            data: cachedUsers
-        });
-    }
-        const data = await pool.query ('SELECT * FROM Users;');
-        // cache the data
-        myCache.set('all_users', data.rows, 3600);
-        // send response 
-        res.status(200).json({
-            status: 'success',
-            results: data.rows.length,
-            data: { users: data.rows}
-        })
-
-        }catch (err) {
-            res.status(500).json({
-                 status: 'error', 
-                 message: err.message 
-            
-                });
-        }
+// ====================
+// GET ALL USERS
+// ====================
+exports.getAllUsers = async (req, res, next) => {
+  try {
+    const cachedUsers = myCache.get('all_users');
+    if (cachedUsers) {
+      return res.status(200).json({
+        status: 'success',
+        message: 'Users fetched from cache',
+        results: cachedUsers.length,
+        data: { users: cachedUsers }
+      });
     }
 
+    const { rows } = await pool.query('SELECT * FROM users;');
+    myCache.set('all_users', rows);
 
+    res.status(200).json({
+      status: 'success',
+      results: rows.length,
+      data: { users: rows }
+    });
 
-exports.createUser = async(req ,res) => {
-    try{
-        // validate user input
-        const {error , value}  = userSchema.validate(req.body , {abortEarly : false});
-        if(error){
-            return res.status(400).json({  
-                status: 'fail',
-                message: error.details.map(detail => detail.message)
-            });
-       }
-        //hash password 
-        const salt = await bcrypt.genSalt(12);
-        value.password = await bcrypt.hash(value.password , salt);
-        // insert new user into database
-        const {full_name , national_id , phone ,  email , place_birth , address , date_of_birth  , password }  = value;
+  } catch (err) {
+    next(new AppError(err.message, 500));
+  }
+};
 
-        const newUser = await pool.query('Insert INTO Users (full_name , national_id , phone ,  email , place_birth , address , date_of_birth  , password) VALUES ($1, $2, $3, $4, $5, $6, $7 , $8 ) RETURNING *' ,
-        [full_name , national_id , phone ,  email , place_birth , address , date_of_birth  , password  ]);
-        res.status(201).json({
-            status: 'success',
-            data: { user: newUser.rows[0]}
-        });
-    }catch(err){
-        res.status(500).json({
-            status: 'error',
-            message: err.message
-        });
-    }
-}
+// ====================
+// CREATE USER
+// ====================
+exports.createUser = async (req, res, next) => {
+  try {
+    const { error, value } = createUserSchema.validate(req.body, { abortEarly: false });
+    if (error) return next(new AppError(error.details.map(d => d.message.replace(/['"]/g, '')).join(', '), 400));
 
-exports.getUserById = async (req, res) => {
-    try{
-        const {id}  = req.params;
-        const user  =  await pool.query('SELECT * FROM Users WHERE id = $1' , [id]);
-        if(user.rows.length === 0){
-            return res.status(404).json({
-                status: 'fail',
-                message: 'User not found'
-            });
-        }   
-        res.status(200).json({
-            status: 'success',
-            data: { user: user.rows[0]}
-        });
-    }catch(err){
-        res.status(500).json({
-            status: 'error',        
-            message: err.message
-        });
-    }   
-}
+    value.password = await bcrypt.hash(value.password, await bcrypt.genSalt(12));
 
-exports.updateUser = async (req, res) => {
-    try{
-        const {id} = req.params;    
-        const {error , value} = userSchema.validate(req.body , {abortEarly : false});
-        if(error){
-            return res.status(400).json({  
-                status: 'fail',
-                message: error.details.map(detail => detail.message)
-            });
-       }
-        const {full_name , national_id , phone ,  email , Place_birth , address , date_of_birth}  = value;
-        const updatedUser = await pool.query('UPDATE Users SET full_name = $1 , national_id = $2 , phone = $3 ,  email = $4 , Place_birth = $5 , address = $6 , date_of_birth = $7 WHERE id = $8 RETURNING *' ,
-        [full_name , national_id , phone ,  email , Place_birth , address , date_of_birth, id]);        
-        if(updatedUser.rows.length === 0){
-            return res.status(404).json({
-                status: 'fail',
-                message: 'User not found'
-            });
-        }       
-        res.status(200).json({
-            status: 'success',
-            data: { user: updatedUser.rows[0]}
-        });
-    }catch(err){
-        res.status(500).json({
-            status: 'error',    
-            message: err.message
-        });
+    const { full_name, national_id, phone, email, place_birth, address, date_of_birth, password, role } = value;
+    const { rows } = await pool.query(
+      'INSERT INTO users(full_name, national_id, phone, email, place_birth, address, date_of_birth, password, role) VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9) RETURNING *',
+      [full_name, national_id, phone, email, place_birth, address, date_of_birth, password, role]
+    );
+
+    myCache.del('all_users'); // clear cache
+
+    res.status(201).json({ status: 'success', data: { user: rows[0] } });
+
+  } catch (err) {
+    next(new AppError(err.message, 500));
+  }
+};
+
+// ====================
+// GET USER BY ID
+// ====================
+exports.getUserById = async (req, res, next) => {
+  try {
+    const { id } = req.params;
+    const { rows } = await pool.query('SELECT * FROM users WHERE id = $1', [id]);
+
+    if (!rows.length) return next(new AppError('User not found', 404));
+
+    res.status(200).json({ status: 'success', data: { user: rows[0] } });
+
+  } catch (err) {
+    next(new AppError(err.message, 500));
+  }
+};
+
+// ====================
+// UPDATE USER
+// ====================
+exports.updateUser = async (req, res, next) => {
+  try {
+    const { id } = req.params;
+    const { error, value } = updateUserSchema.validate(req.body, { abortEarly: false });
+    if (error) return next(new AppError(error.details.map(d => d.message.replace(/['"]/g, '')).join(', '), 400));
+
+    let hashedPassword;
+    if (value.password) {
+      hashedPassword = await bcrypt.hash(value.password, await bcrypt.genSalt(12));
     }
 
-}
+    const query = `
+      UPDATE users
+      SET full_name=$1, national_id=$2, phone=$3, email=$4, place_birth=$5, address=$6, date_of_birth=$7
+      ${hashedPassword ? ', password=$8' : ''}
+      WHERE id=$${hashedPassword ? 9 : 8} RETURNING *
+    `;
 
- exports.deleteUser = async (req, res) => {
-    try{
-        const {id} = req.params;
-        const deletedUser = await pool.query('DELETE FROM Users WHERE id = $1 RETURNING *' , [id]);
-        if(deletedUser.rows.length === 0){      
-            return res.status(404).json({
-                status: 'fail',
-                message: 'User not found'
-            });
-        }
-        res.status(204).json({
-            status: 'success',
-            data: null
-        });
-    }catch(err){
-        res.status(500).json({
-            status: 'error',    
-            message: err.message
-        });
-    }      
+    const { full_name, national_id, phone, email, place_birth, address, date_of_birth } = value;
+    const values = [full_name, national_id, phone, email, place_birth, address, date_of_birth];
 
-}
+    if (hashedPassword) values.push(hashedPassword, id);
+    else values.push(id);
+
+    const { rows } = await pool.query(query, values);
+
+    if (!rows.length) return next(new AppError('User not found', 404));
+
+    myCache.del('all_users'); // clear cache
+
+    res.status(200).json({ status: 'success', data: { user: rows[0] } });
+
+  } catch (err) {
+    next(new AppError(err.message, 500));
+  }
+};
+
+// ====================
+// DELETE USER
+// ====================
+exports.deleteUser = async (req, res, next) => {
+  try {
+    const { id } = req.params;
+    const { rows } = await pool.query('DELETE FROM users WHERE id=$1 RETURNING *', [id]);
+
+    if (!rows.length) return next(new AppError('User not found', 404));
+
+    myCache.del('all_users'); // clear cache
+
+    res.status(200).json({ status: 'success', message: 'User deleted successfully', data: null });
+
+  } catch (err) {
+    next(new AppError(err.message, 500));
+  }
+};
