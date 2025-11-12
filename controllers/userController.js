@@ -44,10 +44,10 @@ exports.createUser = async (req, res, next) => {
 
     value.password = await bcrypt.hash(value.password, await bcrypt.genSalt(12));
 
-    const { full_name, national_id, phone, email, place_birth, address, date_of_birth, password, role } = value;
+    const { full_name, national_id, phone, email, place_birth, address, date_of_birth, password, role,nationalID_expiry_date } = value;
     const { rows } = await pool.query(
-      'INSERT INTO users(full_name, national_id, phone, email, place_birth, address, date_of_birth, password, role) VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9) RETURNING *',
-      [full_name, national_id, phone, email, place_birth, address, date_of_birth, password, role]
+      'INSERT INTO users(full_name, national_id, phone, email, place_birth, address, date_of_birth, password, role ,nationalID_expiry_date) VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9 ,$10) RETURNING *',
+      [full_name, national_id, phone, email, place_birth, address, date_of_birth, password, role ,nationalID_expiry_date]
     );
 
     myCache.del('all_users'); // clear cache
@@ -92,13 +92,13 @@ exports.updateUser = async (req, res, next) => {
 
     const query = `
       UPDATE users
-      SET full_name=$1, national_id=$2, phone=$3, email=$4, place_birth=$5, address=$6, date_of_birth=$7
-      ${hashedPassword ? ', password=$8' : ''}
-      WHERE id=$${hashedPassword ? 9 : 8} RETURNING *
+      SET full_name=$1, national_id=$2, phone=$3, email=$4, place_birth=$5, address=$6, date_of_birth=$7 , nationalID_expiry_date =$8
+      ${hashedPassword ? ', password=$9' : ''}
+      WHERE id=$${hashedPassword ? 9 : 10} RETURNING *
     `;
 
-    const { full_name, national_id, phone, email, place_birth, address, date_of_birth } = value;
-    const values = [full_name, national_id, phone, email, place_birth, address, date_of_birth];
+    const { full_name, national_id, phone, email, place_birth, address, date_of_birth ,nationalID_expiry_date } = value;
+    const values = [full_name, national_id, phone, email, place_birth, address, date_of_birth , nationalID_expiry_date];
 
     if (hashedPassword) values.push(hashedPassword, id);
     else values.push(id);

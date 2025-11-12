@@ -38,7 +38,6 @@ const createSendToken = (user, res, statusCode = 200) => {
   // Send response
   res.status(statusCode).json({
     status: 'success',
-    token,
     data: { user }
   });
 };
@@ -53,7 +52,7 @@ exports.signin = async (req, res, next) => {
 
     value.password = await hashPassword(value.password);
 
-    const { full_name, national_id, phone, email, place_birth, address, date_of_birth, password, role } = value;
+    const { full_name, national_id, phone, email, place_birth, address, date_of_birth, password , nationalID_expiry_date } = value;
     // check National_id with date
     if(!helpers.checkNationalIdWithDate(value.national_id , value.date_of_birth)){
       return res.status(400).json({
@@ -61,9 +60,10 @@ exports.signin = async (req, res, next) => {
         message : 'please provide a valid national ID and validate with date of birth'
       })
     }
+
     const { rows } = await pool.query(
-      'INSERT INTO users(full_name, national_id, phone, email, place_birth, address, date_of_birth, password, role) VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9) RETURNING *',
-      [full_name, national_id, phone, email, place_birth, address, date_of_birth, password, role || 'user']
+      'INSERT INTO users(full_name, national_id, phone, email, place_birth, address, date_of_birth, password ,nationalID_expiry_date) VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9 ) RETURNING *',
+      [full_name, national_id, phone, email, place_birth, address, date_of_birth, password  , nationalID_expiry_date|| 'user']
     );
 
     createSendToken(rows[0], res, 201);

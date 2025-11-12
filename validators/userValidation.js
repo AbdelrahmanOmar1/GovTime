@@ -47,6 +47,10 @@ const userSchema = joi.object({
     }),
     role : joi.string().valid('user' , 'admin' , 'officer').default('user').messages({
         'any.only' : 'Role must be either user , admin , or officer',
+    }),
+    nationalID_expiry_date : joi.string().required().messages({
+        'nationalID_expiry_date.base' : 'nationalID_expiry_date must be a valid date',
+        'string.required' : 'nationalID_expiry_date is required'
     })
 });
 
