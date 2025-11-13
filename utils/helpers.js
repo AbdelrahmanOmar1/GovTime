@@ -37,27 +37,45 @@ return false; // century not a valid century!
 
 
 
-exports.checkNationalIdExpiry = (expiryDate )=> {
+exports.checkNationalIdExpiry = (expiryDate)=> {
   const today = new Date().toISOString().split("T")[0];
+  expiryDate = expiryDate.toISOString().split("T")[0]
   if (expiryDate < today) {
-    console.log("❌ Your national ID has expired! Please renew it.");
+    console.log("❌ Your national ID has expired! Please renew it."); // for debug
     return false;
-    // let date = new Date(); 
-    // for (let i = 1; i <= 10; i++) {
-    //   date.setDate(date.getDate() + 1); 
-    //   console.log(date.toISOString().split("T")[0]);
-    // }
   } else {
-    console.log("✅ Your national ID is still valid!");
+    console.log("✅ Your national ID is still valid!");   // fro debug
     return true;
   }
+}
+
+exports.generateDatsForExpierd = async ()=> {
+  let dates =[]
+  const startDate = new Date();
+  const endDate = new Date();
+  endDate.setDate(endDate.getDate() + 30 );
+  for(let day = startDate ; day<=endDate ; day.setDate(day.getDate() +1)){
+    const formatted  = day.toISOString().split("T")[0]
+    dates.push(formatted)    
+    
+  }
+  
+  return dates
 }
 
 
 
 
-
-
+exports.generateDatsValid = async(userExpiryDate) =>{
+  let dates = [];
+  const startDate = new Date();
+  const endDate = new Date(userExpiryDate);
+  for(let day = startDate;  day<=endDate ; day.setDate(day.getDate() +1)){
+    const formatted = day.toISOString().split('T')[0];
+    dates.push(formatted) 
+  }
+   return dates;
+}
 
 
 

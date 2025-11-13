@@ -10,6 +10,7 @@ require('dotenv').config();
 
 const UserRouter = require('./routes/userRouter');
 const AuthRouter = require('./routes/authRouter');
+const appointmetnsRouter = require('./routes/appointments')
 const AppError = require('./utils/AppError');
 const globalErrorHandler = require('./controllers/errorHandler');
 
@@ -54,6 +55,7 @@ app.use('/api/v1/auth', authLimiter);
 // ============================
 app.use('/api/v1/users', UserRouter);
 app.use('/api/v1/auth', AuthRouter);
+app.use('/api/v1/appointments' , appointmetnsRouter)
 
 // ============================
 // UNHANDLED ROUTES (404)
