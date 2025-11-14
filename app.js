@@ -4,6 +4,7 @@ const morgan = require('morgan');
 const helmet = require('helmet');
 const rateLimit = require('express-rate-limit');
 const cookieParser = require('cookie-parser');
+const cors = require('cors');
 const chalk = require("chalk")
 
 require('dotenv').config();
@@ -22,7 +23,10 @@ const app = express();
 
 // Security headers
 app.use(helmet());
-
+app.use(cors({
+  origin: 'http://localhost:5173', // frontend URL
+  credentials: true,
+}));
 // Body parser
 app.use(express.json());
 app.use(cookieParser());
