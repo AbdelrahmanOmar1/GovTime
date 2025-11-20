@@ -1,4 +1,5 @@
 // src/pages/Home.js
+import { Link } from "react-router-dom";
 import Navbar from "../components/Navbar";
 import govTimeLogo from "../assets/images/govtime-removed.png";
 import govTimeLogoBlue from "../assets/images/govtime-logoBlue.png";
@@ -38,10 +39,14 @@ function Home() {
             />
           </div>
         </div>
-          <button className="group relative left-[50%] translate-x-[-50%]  px-5 py-4 bg-[#212121] border-none text-[#ffffff] text-xl font-semibold rounded-full cursor-pointer overflow-hidden transition-all duration-300 ease-[cubic-bezier(0.23,1,0.32,1)]">
-          <span className="relative z-10 text-center">Book appointmetn!</span>
-         <div className="absolute inset-0 bg-green-800 group-hover:translate-y-0 translate-y-[105%] transition-all duration-300 ease-[cubic-bezier(0.23,1,0.32,1)]"></div>
-        </button>
+        <div className="buttons flex justify-center items-center gap-12">
+         <Link to='/login'>
+          <button class="btn-23 relative overflow-hidden rounded-full border-2 border-transparent bg-green-900 text-white font-extrabold text-base uppercase cursor-pointer py-5 px-18 focus:outline-none">
+            <span class="text absolute inset-0 grid place-items-center transition-opacity duration-200">log in</span>
+            <span aria-hidden="true" class="marquee absolute inset-0 grid place-items-center opacity-0 text-shadow-marquee">log in</span>
+          </button>
+          </Link>
+        </div>
         <footer className="bg-[#e7eaeb] text-black  py-1.5 mt-20">
           <div className="container mx-auto text-center">
           <p>&copy; 2025 GovTime. All Rights Reserved.</p>
