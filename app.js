@@ -24,7 +24,7 @@ const app = express();
 // Security headers
 app.use(helmet());
 app.use(cors({
-  origin: 'http://localhost:5173', // frontend URL
+  origin: 'http://localhost:5173',
   credentials: true,
 }));
 // Body parser
@@ -33,8 +33,10 @@ app.use(cookieParser());
 
 // Logging
 if (process.env.NODE_ENV === 'development') {
+    console.log(chalk.green("🚀 Server is running in development mode..."))  ;
   app.use(morgan('dev'));
 } else if (process.env.NODE_ENV === 'production') {
+    console.log(chalk.blue("🚀 Server is running in production mode..."))  ;
   app.use(morgan('combined'));
 }
 
@@ -51,8 +53,8 @@ const authLimiter = rateLimit({
   message: 'Too many login/signup attempts, please try again later'
 });
 
-app.use('/api', globalLimiter);
-app.use('/api/v1/auth', authLimiter);
+// app.use('/api', globalLimiter);
+// app.use('/api/v1/auth', authLimiter);
 
 // ============================
 // ROUTES

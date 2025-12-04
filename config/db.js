@@ -1,4 +1,6 @@
 const  { Pool }  = require('pg');
+const chalk = require("chalk")
+
 require('dotenv').config();
 
 // connect to the database local
@@ -22,7 +24,7 @@ pool.on("error", (err) => {
 });
 
 pool.connect()
-  .then(() => console.log('Connected to DB! ✅'))
+  .then(() => console.log(chalk.cyan('✅ Connected to the database successfully.')))
   .catch((err) => console.error('💥 Error connecting to DB:', err));
 
 

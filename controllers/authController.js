@@ -38,7 +38,8 @@ const createSendToken = (user, res, statusCode = 200) => {
   // Send response
   res.status(statusCode).json({
     status: 'success',
-    data: { user }
+    data: { user },
+    token
   });
 };
 
@@ -99,9 +100,22 @@ exports.login = async (req, res, next) => {
   }
 };
 
+
+// ===============================
+// Logout
+// ===============================
+exports.logout = (req, res) => {
+  res.clearCookie("jwt", {
+    httpOnly: true,
+    sameSite: "lax",
+    secure: process.env.NODE_ENV === "production",
+  });
+  
+  res.json({ message: "Logged out" });
+};
 // ===============================
 // Protect Routes Middleware
-// ===============================
+// ===============================s
 exports.protect = async (req, res, next) => {
   try {
     let token;

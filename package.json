@@ -8,7 +8,9 @@
   "main": "app.js",
   "scripts": {
     "prod": "cross-env NODE_ENV=production nodemon server.js",
-    "dev": "cross-env NODE_ENV=development nodemon server.js"
+    "dev": "cross-env NODE_ENV=development nodemon server.js",
+    "stop" : "cross-env NODE_ENV=production pm2 stop server.js" ,
+    "logs" : "cross-env NODE_ENV=production pm2 logs server.js"
   },
   "dependencies": {
     "bcrypt": "^6.0.0",
@@ -23,6 +25,7 @@
     "joi": "^18.0.1",
     "jsonwebtoken": "^9.0.2",
     "node-cache": "^5.1.2",
+    "node-cron": "^4.2.1",
     "nodemailer": "^7.0.10",
     "pg": "^8.16.3",
     "xss-clean": "^0.1.4"
