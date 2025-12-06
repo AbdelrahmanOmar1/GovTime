@@ -22,7 +22,7 @@ export default function Login() {
     setLoading(true);
 
     try {
-       await axios.post(
+       const res = await axios.post(
         'http://127.0.0.1:8000/api/v1/auth/login',
         {
           national_id: nationalId,
@@ -33,8 +33,8 @@ export default function Login() {
           withCredentials: true,    
         }
       );
-      
-      navigate('/appointment', { replace: true });
+      localStorage.setItem("user", JSON.stringify(res.data.data.user));
+      navigate('/profile', { replace: true });
       
 
     } catch (err) {
