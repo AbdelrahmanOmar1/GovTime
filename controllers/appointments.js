@@ -141,32 +141,34 @@ exports.getAppointment = async(req,res,next)=>{
       status: "success",
       appointment: {
         date: formattedDate,
-        time: formattedTime
+        time: formattedTime,
+        
       }
     });
   }catch(err){
     next (new AppError(err.message ,500))
   }
 }
+// Cancel the current user's appointment without requiring appointment ID
 exports.cancelAppointment = async (req, res, next) => {
   try {
     const userId = req.user.id;
-    const { id } = req.params;
 
     const { rowCount } = await pool.query(
-      'UPDATE appointments SET status = $1 WHERE id = $2 AND user_id = $3',
-      ['cancelled', id, userId]
+      'UPDATE appointments SET status = $1 WHERE user_id = $2 AND status != $3',
+      ['cancelled', userId, 'cancelled']
     );
 
     if (rowCount === 0)
-      return next(new AppError('No appointment found or not owned by you', 404));
+      return res.status(404).json({ message: 'No active appointment found for this user.' });
 
     res.status(200).json({
       status: 'success',
       message: 'Appointment cancelled successfully.'
     });
   } catch (err) {
-    next(new AppError(err.message, 500));
+    res.status(500).json({ message: err.message });
   }
 };
+
 
