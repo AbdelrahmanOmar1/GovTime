@@ -1,7 +1,8 @@
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import person from '../assets/images/person.png';
+import api from '../axiosConfig';
 
 export default function Login() {
   const [nationalId, setNationalId] = useState('');
@@ -10,12 +11,10 @@ export default function Login() {
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
 
-  // Check if user already logged in (backend cookie)
-  useEffect(() => {
-    const token = localStorage.getItem('authToken');
-    if (token) navigate('/appointment');
-  }, [navigate]);
 
+  
+
+  
   const handleLogin = async (e) => {
     e.preventDefault();
     setError(null);
@@ -23,7 +22,7 @@ export default function Login() {
 
     try {
        const res = await axios.post(
-        'http://127.0.0.1:8000/api/v1/auth/login',
+        'http://localhost:8000/api/v1/auth/login',
         {
           national_id: nationalId,
           password,
@@ -33,7 +32,11 @@ export default function Login() {
           withCredentials: true,    
         }
       );
-      localStorage.setItem("user", JSON.stringify(res.data.data.user));
+
+
+      localStorage.setItem("user", res.data.data.user.id);
+      console.log(localStorage.getItem("user"));
+      
       navigate('/profile', { replace: true });
       
 

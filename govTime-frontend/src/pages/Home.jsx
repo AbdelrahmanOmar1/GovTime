@@ -41,9 +41,9 @@ function Home() {
         </div>
         <div className="buttons flex justify-center items-center gap-12">
          <Link to='/login'>
-          <button class="btn-23 relative overflow-hidden rounded-full border-2 border-transparent bg-green-900 text-white font-extrabold text-base uppercase cursor-pointer py-5 px-18 focus:outline-none">
-            <span class="text absolute inset-0 grid place-items-center transition-opacity duration-200">log in</span>
-            <span aria-hidden="true" class="marquee absolute inset-0 grid place-items-center opacity-0 text-shadow-marquee">log in</span>
+          <button className="btn-23 relative overflow-hidden rounded-full border-2 border-transparent bg-green-900 text-white font-extrabold text-base uppercase cursor-pointer py-5 px-18 focus:outline-none">
+            <span className="text absolute inset-0 grid place-items-center transition-opacity duration-200">log in</span>
+            <span aria-hidden="true" className="marquee absolute inset-0 grid place-items-center opacity-0 text-shadow-marquee">log in</span>
           </button>
           </Link>
         </div>
