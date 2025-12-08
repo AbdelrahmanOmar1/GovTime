@@ -13,5 +13,4 @@ router.patch('/:id', authController.protect,authController.restrictTo('admin' , 
 router.delete('/:id' , authController.protect, authController.restrictTo('admin'),userController.deleteUser);
 
 
-
 module.exports = router;

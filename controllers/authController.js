@@ -5,7 +5,9 @@ const bcrypt = require('bcrypt');
 const pool = require('../config/db');
 const userSchema = require('../validators/userValidation');
 const AppError = require('../utils/AppError');
-const helpers = require("../utils/helpers")
+const helpers = require("../utils/helpers");
+const chalk = require('chalk');
+const { path } = require('../app');
 
 // ===============================
 // Helper Functions
@@ -30,11 +32,10 @@ const createSendToken = (user, res, statusCode = 200) => {
 
   res.cookie('jwt', token, {
     httpOnly: true,
-    secure: process.env.NODE_ENV === 'production', 
-    sameSite: 'lax',
-    maxAge: 7 * 24 * 60 * 60 * 1000 // 7 days
+    secure: true,               
+    sameSite: 'None',          
+    maxAge: 24 * 60 * 60 * 1000  
   });
-
   // Send response
   res.status(statusCode).json({
     status: 'success',
@@ -118,6 +119,7 @@ exports.logout = (req, res) => {
 // ===============================s
 exports.protect = async (req, res, next) => {
   try {
+    
     let token;
     if (req.cookies && req.cookies.jwt) token = req.cookies.jwt;
 
