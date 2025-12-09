@@ -1,174 +1,196 @@
 const pool = require('../config/db');
 const helpers = require('../utils/helpers');
 const AppError = require('../utils/AppError');
-require("dotenv").config()
+require("dotenv").config();
 
+// -------------------------------------------
+// Helper to check available dates
+// -------------------------------------------
+async function checkAvailableDates(datesGenerated) {
+  const availableDays = [];
 
-//helper to check avaliable dates 
-async function checkAvaliabledates (datsGenerated){
-const availableDays = []
-for(const dats of datsGenerated ){
-    const countRes = await pool.query("SELECT COUNT(*) FROM appointments WHERE appointment_date = $1" ,[dats]);
-    const hasvalues = parseInt(countRes.rows[0].count , 10);
-    if(hasvalues < 400){
-        if(process.env.NODE_ENV === "developmet"){
-        availableDays.push({
-            dats ,
-            slots_left : 400 - hasvalues
-        })
-        }else{
-            availableDays.push(dats)
-        }
-
-    }
-}
-return availableDays;
-}
-
-
-exports.getAvaliableAppointment =async(req,res,next) => {
-    try{
-        // CHECK FOR NATIONAL ID EXPIRY
-        const userID = req.user.id;
-        const userRES = await pool.query('SELECT nationalid_expiry_date FROM Users WHERE id = $1' ,[userID]);
-        const userNationalId_expiry = userRES.rows[0].nationalid_expiry_date;
-
-        
-        // check if national id is expierd 
-        const isValid = helpers.checkNationalIdExpiry(userNationalId_expiry);
-        // generate dates
-        const datsGenerated = await helpers.generateDatsForExpierd();
-        const avaliableDays = await checkAvaliabledates(datsGenerated)
-        // handel expired 
-        if(!isValid){
-            if(avaliableDays.length === 0){
-                return res.status(200).json({
-                    message :'Your national ID has been expierd! , please renew it now , "You will pay a fine"',
-                    dats : ["no avaliable dates , plese book in VIP services!"]
-                });
-            }else{
-            return res.status(200).json({
-                   message :'Your national ID has been expierd! , please renew it now , "You will pay a fine"',
-                   dats : avaliableDays
-            })
-            }
-
-            // handel valid
-        }if(isValid){
-             if(avaliableDays.length === 0){
-                return res.status(200).json({
-                    message :'Your national ID is valid!',
-                    dats : ["no avaliable dates , if you need you can book with VIP services!"]
-                });
-            }else{
-            return res.status(200).json({
-                   message :'Your national ID is valid!',
-                   dats : avaliableDays
-            })
-            }
-        }
-    }catch(err){
-        next (new AppError(err.message ,500))
-    }
-}
-
-
-
-exports.bookAppointment =  async(req, res , next) => {
-  try{// check body
-  const user = req.user.id;
-  const {date , time} = req.body;
-  if(!date || !time){
-    return res.status(400).json({
-      status : 'fail' ,
-      message : 'Please provide a valid date or time!'
-    })
-  }
-
-  // check if user already booked an appointment
-     const isBooked = await pool.query(
-      "SELECT * FROM appointments WHERE user_id = $1 AND status = $2",
-      [user, "booked"]
+  for (const date of datesGenerated) {
+    const countRes = await pool.query(
+      "SELECT COUNT(*) FROM appointments WHERE appointment_date = $1",
+      [date]
     );
+    const total = parseInt(countRes.rows[0].count, 10);
 
-    
-  if(isBooked.rows.length  > 0){
-    return res.status(400).json({
-      status : 'fail',
-      message : "You already booked an appointment! , plese cancel it before book new one!"
-    })
+    if (total < 400) {
+      if (process.env.NODE_ENV === "development") {
+        availableDays.push({
+          date,
+          slots_left: 400 - total
+        });
+      } else {
+        availableDays.push(date);
+      }
+    }
   }
 
-  // check DATE AVALABILE!
-  const isDateFull = await pool.query('SELECT COUNT(*) FROM appointments WHERE appointment_date =$1' ,[date]);
-  const countRes = parseInt(isDateFull.rows[0].cont ,10);
-  
-  if(countRes >= 400){
-    return res.status(400).json({
-      status : 'fail',
-      message : 'No avaliable appointments fot this date!'
-    })
-  }
-
-  //book an appointment
-     await pool.query("INSERT INTO appointments (user_id , appointment_time , appointment_date , status) VALUES($1,$2,$3,$4) RETURNING *", [user  ,time ,date ,"booked"])
-  res.status(200).json({
-    status : 'success' ,
-    message : `appointmetn successfuly booked in ${date} at ${time} , please come in date and time!`
-  })}catch(err){
-    next (new AppError(err.message ,500))
-  }
-  
+  return availableDays;
 }
 
-exports.getAppointment = async(req,res,next)=>{
-  try{  
+// -------------------------------------------
+// GET AVAILABLE APPOINTMENTS
+// -------------------------------------------
+exports.getAvaliableAppointment = async (req, res, next) => {
+  try {
     const userID = req.user.id;
 
-    const userAppointment = await pool.query("SELECT appointment_date , appointment_time FROM appointments WHERE user_id = $1" ,[userID]);
-    if(userAppointment.rows.length === 0 ){
+    const userRes = await pool.query(
+      "SELECT nationalid_expiry_date FROM Users WHERE id = $1",
+      [userID]
+    );
+
+    const expiryDate = userRes.rows[0].nationalid_expiry_date;
+    const isValid = helpers.checkNationalIdExpiry(expiryDate);
+
+    const generatedDates = await helpers.generateDatsForExpierd();
+    const availableDays = await checkAvailableDates(generatedDates);
+
+    const response = {
+      message: isValid
+        ? "Your national ID is valid!"
+        : 'Your national ID has expired! Please renew it now. "You will pay a fine"',
+      dats:
+        availableDays.length === 0
+          ? ["No available dates. Please book via VIP services!"]
+          : availableDays,
+    };
+
+    return res.status(200).json(response);
+
+  } catch (err) {
+    next(new AppError(err.message, 500));
+  }
+};
+
+// -------------------------------------------
+// BOOK APPOINTMENT
+// -------------------------------------------
+exports.bookAppointment = async (req, res, next) => {
+  try {
+    const userId = req.user.id;
+    const { date, time } = req.body;
+
+    if (!date || !time) {
       return res.status(400).json({
-        status : "fail",
-        message : "You don't have any appointments , please book new one!"
-      })
+        status: "fail",
+        message: "Please provide a valid date and time!"
+      });
     }
 
-    const { appointment_date, appointment_time } = userAppointment.rows[0];
-    const formattedDate = new Date(appointment_date).toISOString().split("T")[0];
-    const formattedTime = appointment_time.slice(0, 5);
+    // Check if user already booked
+    const bookedCheck = await pool.query(
+      "SELECT * FROM appointments WHERE user_id = $1 AND status = 'booked'",
+      [userId]
+    );
 
-  res.status(200).json({
+    if (bookedCheck.rows.length > 0) {
+      return res.status(400).json({
+        status: "fail",
+        message: "You already have an active appointment. Cancel it before booking a new one."
+      });
+    }
+
+    // Check capacity
+    const countRes = await pool.query(
+      "SELECT COUNT(*) FROM appointments WHERE appointment_date = $1",
+      [date]
+    );
+
+    const count = parseInt(countRes.rows[0].count, 10);
+
+    if (count >= 400) {
+      return res.status(400).json({
+        status: "fail",
+        message: "No available appointments for this date!"
+      });
+    }
+
+    // Insert appointment
+    await pool.query(
+      `INSERT INTO appointments (user_id, appointment_time, appointment_date, status)
+       VALUES ($1, $2, $3, 'booked')`,
+      [userId, time, date]
+    );
+
+    return res.status(200).json({
+      status: "success",
+      message: `Appointment successfully booked for ${date} at ${time}.`
+    });
+
+  } catch (err) {
+    next(new AppError(err.message, 500));
+  }
+};
+
+// -------------------------------------------
+// GET USER APPOINTMENT
+// -------------------------------------------
+exports.getAppointment = async (req, res, next) => {
+  try {
+    const userId = req.user.id;
+
+    const result = await pool.query(
+      "SELECT appointment_date, appointment_time FROM appointments WHERE user_id = $1 AND status = 'booked'",
+      [userId]
+    );
+
+    if (result.rows.length === 0) {
+      return res.status(400).json({
+        status: "fail",
+        message: "You don't have any active appointments. Please book one!"
+      });
+    }
+
+    const { appointment_date, appointment_time } = result.rows[0];
+
+    return res.status(200).json({
       status: "success",
       appointment: {
-        date: formattedDate,
-        time: formattedTime,
-        
+        date: new Date(appointment_date).toISOString().split("T")[0],
+        time: appointment_time.slice(0, 5)
       }
     });
-  }catch(err){
-    next (new AppError(err.message ,500))
+
+  } catch (err) {
+    next(new AppError(err.message, 500));
   }
-}
-// Cancel the current user's appointment without requiring appointment ID
+};
+
+// -------------------------------------------
+// CANCEL USER APPOINTMENT
+// -------------------------------------------
 exports.cancelAppointment = async (req, res, next) => {
   try {
     const userId = req.user.id;
 
-    const { rowCount } = await pool.query(
-      'UPDATE appointments SET status = $1 WHERE user_id = $2 AND status != $3',
-      ['cancelled', userId, 'cancelled']
+    // Check if user has booked appointment
+    const check = await pool.query(
+      "SELECT * FROM appointments WHERE user_id = $1 AND status = 'booked'",
+      [userId]
     );
 
-    if (rowCount === 0)
-      return res.status(404).json({ message: 'No active appointment found for this user.' });
+    if (check.rows.length === 0) {
+      return res.status(404).json({
+        message: "No active appointment found for this user."
+      });
+    }
 
-    res.status(200).json({
-      status: 'success',
-      message: 'Appointment cancelled successfully.'
+    // Cancel it
+    await pool.query(
+      "UPDATE appointments SET status = 'cancelled' WHERE user_id = $1 AND status = 'booked'",
+      [userId]
+    );
+
+    return res.status(200).json({
+      status: "success",
+      message: "Appointment cancelled successfully."
     });
+
   } catch (err) {
-    res.status(500).json({ message: err.message });
+    next(new AppError(err.message, 500));
   }
 };
-
-
