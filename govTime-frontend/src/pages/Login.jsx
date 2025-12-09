@@ -1,6 +1,5 @@
 import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
-import axios from 'axios';
+import { useNavigate, Link } from 'react-router-dom';  // Import Link here
 import person from '../assets/images/person.png';
 import api from '../axiosConfig';
 
@@ -11,37 +10,22 @@ export default function Login() {
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
 
-
-  
-
-  
   const handleLogin = async (e) => {
     e.preventDefault();
     setError(null);
     setLoading(true);
 
     try {
-       const res = await axios.post(
-        'http://localhost:8000/api/v1/auth/login',
-        {
-          national_id: nationalId,
-          password,
-        },
-        {
-          headers: { 'Content-Type': 'application/json' },
-          withCredentials: true,    
-        }
-      );
-
+      const res = await api.post("auth/login", {
+        national_id: nationalId,
+        password
+      });
 
       localStorage.setItem("user", res.data.data.user.id);
-      console.log(localStorage.getItem("user"));
-      
-      navigate('/profile', { replace: true });
-      
 
+      navigate('/profile', { replace: true });
     } catch (err) {
-      if (err.response && err.response.data) {
+      if (err.response?.data) {
         setError(err.response.data.message || 'Login failed');
       } else if (err.request) {
         setError('No response from server. Please try again.');
@@ -94,8 +78,9 @@ export default function Login() {
           </button>
         </form>
 
+        {/* Replace the 'Learn user license agreement' with the 'Not signed yet' link */}
         <span className="block text-center mt-4 text-xs">
-          <a href="#" className="text-blue-600">Learn user license agreement</a>
+          <Link to="/signup" className="text-blue-600">Not signed yet? Sign up here.</Link>
         </span>
       </div>
     </div>
