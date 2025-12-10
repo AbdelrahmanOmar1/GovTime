@@ -14,7 +14,7 @@ const AuthRouter = require('./routes/authRouter');
 const appointmetnsRouter = require('./routes/appointments')
 const AppError = require('./utils/AppError');
 const globalErrorHandler = require('./controllers/errorHandler');
-
+const notificationRouter = require('./routes/notificationRouter');
 const app = express();
 
 // ============================
@@ -62,7 +62,7 @@ const authLimiter = rateLimit({
 app.use('/api/v1/users', UserRouter);
 app.use('/api/v1/auth', AuthRouter);
 app.use('/api/v1/appointments' , appointmetnsRouter)
-
+app.use('/api/v1/notifications',notificationRouter );
 // ============================
 // UNHANDLED ROUTES (404)
 // ============================
