@@ -8,42 +8,37 @@ function Appointment() {
   const [loading, setLoading] = useState(true);
   const [actionLoading, setActionLoading] = useState(false);
   const [message, setMessage] = useState("");
-  const [messageType, setMessageType] = useState("success"); // "success", "error", "warning"
+  const [messageType, setMessageType] = useState("success");
   const [selectedDate, setSelectedDate] = useState("");
   const [selectedTime, setSelectedTime] = useState("");
 
-  // =============================
-  // FETCH APPOINTMENTS
-  // =============================
-useEffect(() => {
-  // Define an async function inside the effect
-  const fetchData = async () => {
-    setLoading(true);
-    try {
-      const res = await api.get("/appointments");
-      setAvailableDates(res.data.dats || []);
-      setMessage(res.data.message || "");
-      setMessageType(res.data.message?.includes("expired") ? "warning" : "success");
-
+  // Fetch appointments
+  useEffect(() => {
+    const fetchData = async () => {
+      setLoading(true);
       try {
-        const appointmentRes = await api.get("/appointments/my-appointment");
-        setUserAppointment(appointmentRes.data.appointment || null);
+        const res = await api.get("/appointments");
+        setAvailableDates(res.data.dats || []);
+        setMessage(res.data.message || "");
+        setMessageType(res.data.message?.includes("expired") ? "warning" : "success");
+
+        try {
+          const appointmentRes = await api.get("/appointments/my-appointment");
+          setUserAppointment(appointmentRes.data.appointment || null);
+        } catch {
+          setUserAppointment(null);
+        }
       } catch {
-        setUserAppointment(null);
+        setMessage("Error fetching appointments");
+        setMessageType("error");
       }
-    } catch {
-      setMessage("Error fetching appointments");
-      setMessageType("error");
-    }
-    setLoading(false);
-  };
+      setLoading(false);
+    };
 
-  fetchData(); // call it here
-}, []);
+    fetchData();
+  }, []);
 
-  // =============================
-  // BOOK APPOINTMENT
-  // =============================
+  // Book appointment
   const handleBookAppointment = async () => {
     if (!selectedDate || !selectedTime) {
       setMessage("Please select both date and time");
@@ -57,6 +52,20 @@ useEffect(() => {
       setMessage(res.data.message);
       setMessageType("success");
       setUserAppointment({ date: selectedDate, time: selectedTime });
+
+      // ================================
+      // CREATE NOTIFICATION FOR APPOINTMENT
+      // ================================
+      try {
+        await api.post("/notifications", {
+          type: "appointment",
+          message: `Your appointment is booked for ${selectedDate} at ${selectedTime}`,
+          read: false,
+        });
+      } catch (notifErr) {
+        console.error("Error creating notification:", notifErr);
+      }
+
     } catch (err) {
       const backendMsg = err.response?.data?.message || "Error booking appointment";
       setMessage(backendMsg);
@@ -65,9 +74,7 @@ useEffect(() => {
     setActionLoading(false);
   };
 
-  // =============================
-  // CANCEL APPOINTMENT
-  // =============================
+  // Cancel appointment
   const handleCancelAppointment = async () => {
     setActionLoading(true);
     try {
@@ -93,12 +100,10 @@ useEffect(() => {
       {/* MAIN CONTENT */}
       <div className="flex-1 p-12 overflow-auto">
         <div className="max-w-4xl mx-auto">
-          {/* HEADER */}
           <h1 className="text-4xl font-extrabold text-gray-800 text-center mb-8">
             {userAppointment ? "Your Appointment" : "Book an Appointment"}
           </h1>
 
-          {/* MESSAGE */}
           {message && (
             <div
               className={`mb-6 p-4 rounded-lg text-center font-semibold text-lg shadow-sm ${
@@ -113,7 +118,6 @@ useEffect(() => {
             </div>
           )}
 
-          {/* LOADING */}
           {loading ? (
             <div className="flex justify-center items-center h-64">
               <div className="animate-spin rounded-full border-t-4 border-blue-500 w-16 h-16"></div>

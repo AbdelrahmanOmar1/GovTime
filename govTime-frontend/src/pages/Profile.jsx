@@ -1,25 +1,20 @@
-// import React from "react";
 import { useState, useEffect } from "react";
 import Sidenav from "../components/Sidenav";
 import api from "../axiosConfig";
+
 export default function ProfilePage() {
-  
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     const fetchUser = async () => {
       try {
-        const res = await api.get(`/users/${localStorage.getItem("user")}`, 
-          { withCredentials: true } 
-        );
-        
-        
+        const userId = localStorage.getItem("user");
+        const res = await api.get(`/users/${userId}`);
         setUser(res.data.data.user);
+        
       } catch (err) {
         console.error(err);
-        // redirect if not logged in
-        window.location.href = "/login";
       } finally {
         setLoading(false);
       }
@@ -30,10 +25,10 @@ export default function ProfilePage() {
 
   if (loading) return <p>Loading...</p>;
   if (!user) return <p>No user found</p>;
+
   return (
     <div className="min-h-screen bg-gray-100">
       <Sidenav />
-
       <div className="ml-64 p-10">
         <h1 className="text-4xl font-bold mb-10 text-gray-800">
           {user.full_name} Profile
@@ -45,7 +40,6 @@ export default function ProfilePage() {
               <h2 className="text-2xl font-semibold">{user.full_name}</h2>
               <p className="text-gray-600">{user.email}</p>
             </div>
-
             <span
               className={`px-4 py-2 rounded-full text-sm font-semibold 
                 ${user.verified ? "bg-green-100 text-green-700" : "bg-red-100 text-red-700"}`}
@@ -62,23 +56,12 @@ export default function ProfilePage() {
           <ProfileItem label="National ID" value={user.national_id} />
           <ProfileItem label="Place of Birth" value={user.place_birth} />
           <ProfileItem label="Address" value={user.address} />
-          <ProfileItem
-            label="Date of Birth"
-            value={user.date_of_birth ? new Date(user.date_of_birth).toLocaleDateString() : "—"}
-          />
-          <ProfileItem
-            label="National ID Expiry Date"
-            value={user.nationalID_expiry_date ? new Date(user.nationalID_expiry_date).toLocaleDateString() : "—"}
-          />
-          <ProfileItem
-            label="Verified"
-            value={
-              <span className={user.verified ? "text-green-600" : "text-red-600"}>
-                {user.verified ? "Yes" : "Not Verified"}
-              </span>
-            }
-          />
+          <ProfileItem label="Date of Birth" value={user.date_of_birth ? new Date(user.date_of_birth).toLocaleDateString() : "—"} />
+          <ProfileItem label="National ID Expiry Date" value={user.nationalID_expiry_date ? new Date(user.nationalID_expiry_date).toLocaleDateString() : "—"} />
+          <ProfileItem label="Verified" value={<span className={user.verified ? "text-green-600" : "text-red-600"}>{user.verified ? "Yes" : "No"}</span>} />
         </div>
+
+
       </div>
     </div>
   );

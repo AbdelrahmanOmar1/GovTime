@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { useNavigate, Link } from 'react-router-dom';  // Import Link here
+import { useNavigate, Link } from 'react-router-dom';
 import person from '../assets/images/person.png';
 import api from '../axiosConfig';
 
@@ -35,8 +35,10 @@ export default function Signin() {
         nationalID_expiry_date: nationalIdExpiryDate
       });
 
+      // Save user ID in localStorage
       localStorage.setItem("user", res.data.data.user.id);
-      navigate('/profile', { replace: true });
+
+      navigate(`/verify`, { replace: true });
     } catch (err) {
       if (err.response?.data) {
         setError(err.response.data.message || 'Sign in failed');
@@ -64,100 +66,24 @@ export default function Signin() {
 
         {error && <div className="text-red-500 text-center mt-2">{error}</div>}
 
-        <form onSubmit={handleSignIn} className="mt-6 space-y-4">
-          {/* Full Name */}
-          <input
-            type="text"
-            placeholder="Full Name"
-            value={fullName}
-            onChange={(e) => setFullName(e.target.value)}
-            className="w-full px-4 py-3 rounded-full shadow focus:outline-none focus:ring-2 focus:ring-blue-400 placeholder-gray-400"
-          />
-          
-          {/* National ID */}
-          <input
-            type="text"
-            placeholder="National ID"
-            value={nationalId}
-            onChange={(e) => setNationalId(e.target.value)}
-            className="w-full px-4 py-3 rounded-full shadow focus:outline-none focus:ring-2 focus:ring-blue-400 placeholder-gray-400"
-          />
+        <form onSubmit={handleSignIn} className="mt-6 space-y-4 ">
+          <input type="text" placeholder="Full Name" value={fullName} onChange={e => setFullName(e.target.value)} className="w-full px-4 py-3 rounded-full shadow focus:outline-none focus:ring-2 focus:ring-blue-400 placeholder-gray-400" />
+          <input type="text" placeholder="National ID" value={nationalId} onChange={e => setNationalId(e.target.value)} className="w-full px-4 py-3 rounded-full shadow focus:outline-none focus:ring-2 focus:ring-blue-400 placeholder-gray-400" />
+          <input type="text" placeholder="Phone" value={phone} onChange={e => setPhone(e.target.value)} className="w-full px-4 py-3 rounded-full shadow focus:outline-none focus:ring-2 focus:ring-blue-400 placeholder-gray-400" />
+          <input type="email" placeholder="Email" value={email} onChange={e => setEmail(e.target.value)} className="w-full px-4 py-3 rounded-full shadow focus:outline-none focus:ring-2 focus:ring-blue-400 placeholder-gray-400" />
+          <input type="text" placeholder="Place of Birth" value={placeBirth} onChange={e => setPlaceBirth(e.target.value)} className="w-full px-4 py-3 rounded-full shadow focus:outline-none focus:ring-2 focus:ring-blue-400 placeholder-gray-400" />
+          <input type="text" placeholder="Address" value={address} onChange={e => setAddress(e.target.value)} className="w-full px-4 py-3 rounded-full shadow focus:outline-none focus:ring-2 focus:ring-blue-400 placeholder-gray-400" />
+          <input type="date" placeholder="Date of Birth" value={dateOfBirth} onChange={e => setDateOfBirth(e.target.value)} className="w-full px-4 py-3 rounded-full shadow focus:outline-none focus:ring-2 focus:ring-blue-400 placeholder-gray-400" />
+          <input type="password" placeholder="Password" value={password} onChange={e => setPassword(e.target.value)} className="w-full px-4 py-3 rounded-full shadow focus:outline-none focus:ring-2 focus:ring-blue-400 placeholder-gray-400" />
+          <input type="date" placeholder="National ID Expiry Date" value={nationalIdExpiryDate} onChange={e => setNationalIdExpiryDate(e.target.value)} className="w-full px-4 py-3 rounded-full shadow focus:outline-none focus:ring-2 focus:ring-blue-400 placeholder-gray-400" />
 
-          {/* Phone */}
-          <input
-            type="text"
-            placeholder="Phone"
-            value={phone}
-            onChange={(e) => setPhone(e.target.value)}
-            className="w-full px-4 py-3 rounded-full shadow focus:outline-none focus:ring-2 focus:ring-blue-400 placeholder-gray-400"
-          />
-
-          {/* Email */}
-          <input
-            type="email"
-            placeholder="Email"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            className="w-full px-4 py-3 rounded-full shadow focus:outline-none focus:ring-2 focus:ring-blue-400 placeholder-gray-400"
-          />
-
-          {/* Place of Birth */}
-          <input
-            type="text"
-            placeholder="Place of Birth"
-            value={placeBirth}
-            onChange={(e) => setPlaceBirth(e.target.value)}
-            className="w-full px-4 py-3 rounded-full shadow focus:outline-none focus:ring-2 focus:ring-blue-400 placeholder-gray-400"
-          />
-
-          {/* Address */}
-          <input
-            type="text"
-            placeholder="Address"
-            value={address}
-            onChange={(e) => setAddress(e.target.value)}
-            className="w-full px-4 py-3 rounded-full shadow focus:outline-none focus:ring-2 focus:ring-blue-400 placeholder-gray-400"
-          />
-
-          {/* Date of Birth */}
-          <input
-            type="date"
-            placeholder="Date of Birth"
-            value={dateOfBirth}
-            onChange={(e) => setDateOfBirth(e.target.value)}
-            className="w-full px-4 py-3 rounded-full shadow focus:outline-none focus:ring-2 focus:ring-blue-400 placeholder-gray-400"
-          />
-
-          {/* Password */}
-          <input
-            type="password"
-            placeholder="Password"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            className="w-full px-4 py-3 rounded-full shadow focus:outline-none focus:ring-2 focus:ring-blue-400 placeholder-gray-400"
-          />
-
-          {/* National ID Expiry Date */}
-          <input
-            type="date"
-            placeholder="National ID Expiry Date"
-            value={nationalIdExpiryDate}
-            onChange={(e) => setNationalIdExpiryDate(e.target.value)}
-            className="w-full px-4 py-3 rounded-full shadow focus:outline-none focus:ring-2 focus:ring-blue-400 placeholder-gray-400"
-          />
-
-          <button
-            type="submit"
-            disabled={loading}
-            className="w-full py-3 mt-4 bg-linear-to-r from-blue-600 to-cyan-400 text-white rounded-full shadow-lg hover:scale-105 transform transition duration-300 disabled:opacity-50"
-          >
+          <button type="submit" disabled={loading} className="w-full py-3 mt-4 bg-linear-to-r from-blue-600 to-cyan-400 text-white rounded-full shadow-lg hover:scale-105 transform transition duration-300 disabled:opacity-50 hover:cursor-pointer">
             {loading ? 'Signing Up...' : 'Sign Up'}
           </button>
         </form>
 
-        {/* Already have an account? */}
         <span className="block text-center mt-4 text-xs">
-          <Link to="/login" className="text-blue-600">Already have an account? Log in here.</Link>
+          <Link to="/login" className="text-blue-600 hover:cursor-pointer ">Already have an account? Log in here.</Link>
         </span>
       </div>
     </div>

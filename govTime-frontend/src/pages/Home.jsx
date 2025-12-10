@@ -17,7 +17,7 @@ function Home() {
             The electronic platform for the services of the Ministry of Interior and its sectors, to serve citizens!
           </p>
         </div>
-        <div className="cards-section m-20">
+        <div className="cards-section m-20 cursor-pointer">
           <div className="card-grid flex justify-between gap-5 mx-20">
             <Card
               imageSrc={govTimeLogo}
@@ -30,6 +30,7 @@ function Home() {
               title="Notification!"
               description="Before your NationalId expires, we will notify you with the date and time automatically."
               bgColor="blue-800"
+              
             />
             <Card
               imageSrc={govTimeLogoBrown}

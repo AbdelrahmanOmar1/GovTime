@@ -22,7 +22,7 @@ export default function Login() {
       });
 
       localStorage.setItem("user", res.data.data.user.id);
-
+      
       navigate('/profile', { replace: true });
     } catch (err) {
       if (err.response?.data) {
@@ -72,7 +72,7 @@ export default function Login() {
           <button
             type="submit"
             disabled={loading}
-            className="w-full py-3 mt-4 bg-linear-to-r from-blue-600 to-cyan-400 text-white rounded-full shadow-lg hover:scale-105 transform transition duration-300 disabled:opacity-50"
+            className="w-full py-3 mt-4 bg-linear-to-r from-blue-600 to-cyan-400 text-white rounded-full shadow-lg hover:scale-105 transform transition duration-300 disabled:opacity-50 hower:cursor-pointer"
           >
             {loading ? 'Signing In...' : 'Sign In'}
           </button>
@@ -80,7 +80,7 @@ export default function Login() {
 
         {/* Replace the 'Learn user license agreement' with the 'Not signed yet' link */}
         <span className="block text-center mt-4 text-xs">
-          <Link to="/signup" className="text-blue-600">Not signed yet? Sign up here.</Link>
+          <Link to="/signup" className="text-blue-600 hover:cursor-pointer">Not signed yet? Sign up here.</Link>
         </span>
       </div>
     </div>
