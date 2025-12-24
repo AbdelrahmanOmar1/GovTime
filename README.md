@@ -29,7 +29,7 @@ Admins can monitor the system and manage requests. The platform focuses on *spee
 ### *Backend*
 - Node.js
 - Express.js
-- MongoDB + Mongoose
+- PostgreSQL 
 - JWT Authentication
 - Cookie-based sessions
 - PM2 for production monitoring
