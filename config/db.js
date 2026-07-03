@@ -1,6 +1,6 @@
 const  { Pool }  = require('pg');
 const chalk = require("chalk")
-cosnt mongoose = require('mongoose')
+const mongoose = require('mongoose')
 require('dotenv').config();
 
 // connect to the database local
