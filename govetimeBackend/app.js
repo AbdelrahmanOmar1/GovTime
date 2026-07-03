@@ -25,8 +25,13 @@ const app = express();
 // Security headers
 app.use(helmet());
 
-const allowedOrigins = [
+const defaultAllowedOrigins = [
   "http://localhost:5173",
+  "https://gov-time-6bcnjqw3f-abdelrahamn1s-projects.vercel.app",
+];
+
+const allowedOrigins = [
+  ...defaultAllowedOrigins,
   ...(process.env.FRONTEND_URL
     ? process.env.FRONTEND_URL.split(",").map((url) => url.trim())
     : []),
