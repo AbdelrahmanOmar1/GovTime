@@ -9,10 +9,7 @@ if (!mongoUri) {
 mongoose.set("strictQuery", false);
 
 mongoose
-  .connect(mongoUri, {
-    useNewUrlParser: true,
-    useUnifiedTopology: true,
-  })
+  .connect(mongoUri)
   .then(() => console.log("✅ Connected to MongoDB successfully."))
   .catch((err) => console.error("💥 Error connecting to MongoDB:", err));
 
