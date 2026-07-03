@@ -1,38 +1,21 @@
-const  { Pool }  = require('pg');
-const chalk = require("chalk")
-const mongoose = require('mongoose')
-require('dotenv').config();
+const { Pool } = require("pg");
+const chalk = require("chalk");
+require("dotenv").config();
 
-// connect to the database local
-// const pool= new Pool({
-//     host: process.env.PGHOST,
-//     user : process.env.PGUSER,
-//     password : process.env.PGPASSWORD,
-//     database: process.env.PGDATABASE,
-//     port : process.env.PGPORT,
-// });
+const pool = new Pool({
+  connectionString: process.env.MONGO_URI,
+  ssl: { rejectUnauthorized: false },
+});
 
+pool.on("error", (err) => {
+  console.error("Unexpected error on idle client", err);
+});
 
-//connect to the data base online
-// const pool = new Pool({
-//   connectionString: process.env.DATABASE_URL.replace('****************' , process.env.DATABASE_URL_PASS),
-//   ssl: { rejectUnauthorized: false }
-// });
-mongoose
-  .connect(process.env.MONGO_URI)
-  .then(() => console.log(chalk.yellow("Connected to DB Successfully....")))
-  .catch((err) => {
-    console.log(chalk.red("DB Connection Failed!⛔", err));
-  });
-
-// pool.on("error", (err) => {
-//   console.error("Unexpected error on idle client", err);
-// });
-
-// pool.connect()
-//   .then(() => console.log(chalk.cyan('✅ Connected to the database successfully.')))
-//   .catch((err) => console.error('💥 Error connecting to DB:', err));
-
-
+pool
+  .connect()
+  .then(() =>
+    console.log(chalk.cyan("✅ Connected to the database successfully.")),
+  )
+  .catch((err) => console.error("💥 Error connecting to DB:", err));
 
 module.exports = pool;
