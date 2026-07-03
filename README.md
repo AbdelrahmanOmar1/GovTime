@@ -5,7 +5,7 @@ Users can create accounts, book appointments, view profiles, and manage notifica
 Admins can monitor the system and manage requests. The platform focuses on *speed, automation, and security*.
 
 ---
-#Live Demo : https://gov-time.vercel.app/
+#Live Demo : [https://gov-time-6bcnjqw3f-abdelrahamn1s-projects.vercel.app/]
 ---
 ## 🚀 Features
 
@@ -65,6 +65,22 @@ GovTime uses:
 ---
 
 ## ⚙ Running the Project
+
+*Sign for mailtrap.com to get access for dummey mail *
+
+then 
+
+*add file .env*
+```bash 
+JWT_SECRET_KEY = ........
+MONGO_URI = .......
+PORT = .........
+SMTP_HOST = .........
+SMTP_PASS = .........
+SMTP_PORT =..........
+SMTP_USER = .......
+```
+
 
 ### *Backend*
 ```bash
