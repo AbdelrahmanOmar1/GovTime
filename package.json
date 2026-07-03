@@ -10,6 +10,7 @@
     "prod": "cross-env NODE_ENV=production nodemon server.js",
     "dev": "cross-env NODE_ENV=development nodemon server.js",
     "stop": "cross-env NODE_ENV=production pm2 stop server.js",
+    "start": "node server.js",
     "logs": "cross-env NODE_ENV=production pm2 logs server.js"
   },
   "dependencies": {
