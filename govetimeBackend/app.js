@@ -24,11 +24,25 @@ const app = express();
 
 // Security headers
 app.use(helmet());
+
+const allowedOrigins = [
+  "http://localhost:5173",
+  process.env.FRONTEND_URL,
+].filter(Boolean);
+
 app.use(
   cors({
-    origin: "*",
+    origin: (origin, callback) => {
+      if (!origin || allowedOrigins.includes(origin)) {
+        callback(null, true);
+      } else {
+        callback(new Error(`CORS policy: Origin ${origin} not allowed`), false);
+      }
+    },
+    credentials: true,
   }),
 );
+
 // Body parser
 app.use(express.json());
 app.use(cookieParser());
