@@ -28,6 +28,7 @@ app.use(helmet());
 const defaultAllowedOrigins = [
   "http://localhost:5173",
   "https://gov-time-6bcnjqw3f-abdelrahamn1s-projects.vercel.app",
+  "https://gov-time-6bcnjqw3f-abdelrahamn1s-projects.vercel.app:443",
 ];
 
 const allowedOrigins = [
@@ -40,12 +41,15 @@ const allowedOrigins = [
     : []),
 ].filter(Boolean);
 
+console.log("CORS allowed origins:", allowedOrigins);
+
 app.use(
   cors({
     origin: (origin, callback) => {
       if (!origin || allowedOrigins.includes(origin)) {
         callback(null, true);
       } else {
+        console.error("CORS reject origin:", origin);
         callback(new Error(`CORS policy: Origin ${origin} not allowed`), false);
       }
     },
