@@ -1,10 +1,13 @@
 const { Pool } = require("pg");
-const chalk = require("chalk");
 require("dotenv").config();
 
 const pool = new Pool({
-  connectionString: process.env.MONGO_URI,
-  ssl: { rejectUnauthorized: false },
+  host: process.env.PGHOST,
+  user: process.env.PGUSER,
+  password: process.env.PGPASSWORD,
+  database: process.env.PGDATABASE,
+  port: process.env.PGPORT,
+  ssl: process.env.PGSSL === "true" ? { rejectUnauthorized: false } : false,
 });
 
 pool.on("error", (err) => {
@@ -13,9 +16,7 @@ pool.on("error", (err) => {
 
 pool
   .connect()
-  .then(() =>
-    console.log(chalk.cyan("✅ Connected to the database successfully.")),
-  )
+  .then(() => console.log("✅ Connected to the database successfully."))
   .catch((err) => console.error("💥 Error connecting to DB:", err));
 
 module.exports = pool;
