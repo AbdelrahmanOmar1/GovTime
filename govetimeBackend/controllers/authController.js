@@ -16,9 +16,13 @@ const hashPassword = async (password) => {
   return await bcrypt.hash(password, salt);
 };
 
+const getJwtExpiry = () => {
+  return process.env.JWT_EXPIRES_IN || "1d";
+};
+
 const generateToken = (userId, userRole) => {
   return jwt.sign({ id: userId, role: userRole }, process.env.JWT_SECRET_KEY, {
-    expiresIn: process.env.JWT_EXPIRES_IN,
+    expiresIn: getJwtExpiry(),
   });
 };
 
@@ -99,20 +103,20 @@ exports.signin = async (req, res, next) => {
       read: false,
     });
 
-    // const verificationToken = jwt.sign(
-    //   { id: newUser.id },
-    //   process.env.JWT_SECRET_KEY,
-    //   { expiresIn: "1d" },
-    // );
-    // const verifyUrl = `${process.env.BACKEND_URL}/api/v1/auth/verify/${verificationToken}`;
+    const verificationToken = jwt.sign(
+      { id: newUser.id },
+      process.env.JWT_SECRET_KEY,
+      { expiresIn: "1d" },
+    );
+    const verifyUrl = `${process.env.BACKEND_URL}/api/v1/auth/verify/${verificationToken}`;
 
-    // await sendEmail(
-    //   newUser.email,
-    //   "Verify your account",
-    //   `<p>Hello ${newUser.full_name},</p>
-    //    <p>Please verify your account by clicking the link below:</p>
-    //    <a href="${verifyUrl}">Verify Account</a>`,
-    // );
+    await sendEmail(
+      newUser.email,
+      "Verify your account",
+      `<p>Hello ${newUser.full_name},</p>
+       <p>Please verify your account by clicking the link below:</p>
+       <a href="${verifyUrl}">Verify Account</a>`,
+    );
 
     createSendToken(newUser, res, 201);
   } catch (err) {
