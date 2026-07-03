@@ -1,23 +1,18 @@
-const pool = require("../config/db");
+const Notification = require("../models/Notification");
 
 exports.showNotifications = async (req, res) => {
   try {
-    const userId = req.user.id; // now works automatically
+    const userId = req.user.id;
 
-    const { rows } = await pool.query(
-      `SELECT id, user_id, type, message, read, created_at
-       FROM notifications
-       WHERE user_id = $1
-       ORDER BY created_at DESC`,
-      [userId]
-    );
+    const notifications = await Notification.find({ user_id: userId })
+      .sort({ created_at: -1 })
+      .lean();
 
     return res.status(200).json({
       success: true,
-      count: rows.length,
-      notifications: rows
+      count: notifications.length,
+      notifications,
     });
-
   } catch (error) {
     console.error("Error fetching notifications:", error);
     return res.status(500).json({ message: "Error fetching notifications" });
@@ -28,19 +23,20 @@ exports.markAsRead = async (req, res) => {
   try {
     const { id } = req.params;
 
-    const result = await pool.query(
-      "UPDATE notifications SET read = true WHERE id = $1 RETURNING *",
-      [id]
+    const notification = await Notification.findByIdAndUpdate(
+      id,
+      { read: true },
+      { new: true },
     );
 
-    if (result.rowCount === 0) {
+    if (!notification) {
       return res.status(404).json({ message: "Notification not found" });
     }
 
     return res.status(200).json({
       success: true,
       message: "Notification marked as read",
-      notification: result.rows[0]
+      notification,
     });
   } catch (error) {
     console.error(error);

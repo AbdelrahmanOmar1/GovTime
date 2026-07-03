@@ -1,22 +1,19 @@
-const { Pool } = require("pg");
+const mongoose = require("mongoose");
 require("dotenv").config();
 
-const pool = new Pool({
-  host: process.env.PGHOST,
-  user: process.env.PGUSER,
-  password: process.env.PGPASSWORD,
-  database: process.env.PGDATABASE,
-  port: process.env.PGPORT,
-  ssl: process.env.PGSSL === "true" ? { rejectUnauthorized: false } : false,
-});
+const mongoUri = process.env.MONGO_URI;
+if (!mongoUri) {
+  throw new Error("MONGO_URI environment variable is required");
+}
 
-pool.on("error", (err) => {
-  console.error("Unexpected error on idle client", err);
-});
+mongoose.set("strictQuery", false);
 
-pool
-  .connect()
-  .then(() => console.log("✅ Connected to the database successfully."))
-  .catch((err) => console.error("💥 Error connecting to DB:", err));
+mongoose
+  .connect(mongoUri, {
+    useNewUrlParser: true,
+    useUnifiedTopology: true,
+  })
+  .then(() => console.log("✅ Connected to MongoDB successfully."))
+  .catch((err) => console.error("💥 Error connecting to MongoDB:", err));
 
-module.exports = pool;
+module.exports = mongoose;
