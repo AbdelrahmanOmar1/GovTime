@@ -184,10 +184,10 @@ exports.login = async (req, res, next) => {
     if (!validPassword)
       return next(new AppError("Incorrect password or national_id", 401));
 
-    if (!user.verified)
-      return next(
-        new AppError("Please verify your email before logging in.", 401),
-      );
+    // if (!user.verified)
+    //   return next(
+    //     new AppError("Please verify your email before logging in.", 401),
+    //   );
 
     createSendToken(user, res, 200);
   } catch (err) {
