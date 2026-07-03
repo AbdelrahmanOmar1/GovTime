@@ -8,6 +8,15 @@ const cors = require("cors");
 const chalk = require("chalk");
 
 require("dotenv").config();
+
+const requiredEnv = ["MONGO_URI", "JWT_SECRET_KEY"];
+const missingEnv = requiredEnv.filter((key) => !process.env[key]);
+if (missingEnv.length) {
+  throw new Error(
+    `Missing required environment variables: ${missingEnv.join(", ")}`,
+  );
+}
+
 require("./config/db");
 
 const UserRouter = require("./routes/userRouter");
