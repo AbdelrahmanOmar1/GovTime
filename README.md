@@ -66,7 +66,7 @@ GovTime uses:
 
 ## ⚙ Running the Project
 
-*Sign for mailtrap.com to get access for dummey mail*
+*Sign for mailtrap.com to get access for dummy mail*
 
 then 
 
