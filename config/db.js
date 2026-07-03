@@ -1,6 +1,6 @@
 const  { Pool }  = require('pg');
 const chalk = require("chalk")
-
+cosnt mongoose = require('mongoose')
 require('dotenv').config();
 
 // connect to the database local
@@ -14,18 +14,24 @@ require('dotenv').config();
 
 
 //connect to the data base online
-const pool = new Pool({
-  connectionString: process.env.DATABASE_URL.replace('****************' , process.env.DATABASE_URL_PASS),
-  ssl: { rejectUnauthorized: false }
-});
+// const pool = new Pool({
+//   connectionString: process.env.DATABASE_URL.replace('****************' , process.env.DATABASE_URL_PASS),
+//   ssl: { rejectUnauthorized: false }
+// });
+mongoose
+  .connect(process.env.MONGO_URI)
+  .then(() => console.log(chalk.yellow("Connected to DB Successfully....")))
+  .catch((err) => {
+    console.log(chalk.red("DB Connection Failed!⛔", err));
+  });
 
-pool.on("error", (err) => {
-  console.error("Unexpected error on idle client", err);
-});
+// pool.on("error", (err) => {
+//   console.error("Unexpected error on idle client", err);
+// });
 
-pool.connect()
-  .then(() => console.log(chalk.cyan('✅ Connected to the database successfully.')))
-  .catch((err) => console.error('💥 Error connecting to DB:', err));
+// pool.connect()
+//   .then(() => console.log(chalk.cyan('✅ Connected to the database successfully.')))
+//   .catch((err) => console.error('💥 Error connecting to DB:', err));
 
 
 
