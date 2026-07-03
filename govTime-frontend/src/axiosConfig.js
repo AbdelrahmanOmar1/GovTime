@@ -1,10 +1,10 @@
-import axios from 'axios';
+import axios from "axios";
 
 const api = axios.create({
-  baseURL: 'govtime-production.up.railway.app/api/v1/', 
-  withCredentials: true, 
+  baseURL: "https://govtime-production.up.railway.app/api/v1/",
+  withCredentials: true,
   headers: {
-    'Content-Type': 'application/json',
+    "Content-Type": "application/json",
   },
 });
 
